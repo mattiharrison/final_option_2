@@ -20,13 +20,14 @@ library(ggthemes)
 ```
 
 ```{r, echo=FALSE, warning= FALSE, error= FALSE, message= FALSE}
-zipcode <- read_csv("2010_Census_Populations_by_Zip_Code.csv")
+zipcode <- read_csv("../2010_Census_Populations_by_Zip_Code.csv")
 ```
 
 ```{r, echo=FALSE, warning= FALSE, error= FALSE, message= FALSE}
 zipcode_clean <- zipcode %>% 
   clean_names() %>% 
-  filter(total_population > 0)
+  filter(total_population > 0) %>% 
+  write_rds(path = "zipcode_data")
 ```
 
 ```{r, echo=FALSE, warning= FALSE, error= FALSE, message= FALSE}
