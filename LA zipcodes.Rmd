@@ -1,0 +1,41 @@
+---
+title: "Final (option 2)"
+author: "Matti Harrison"
+date: "11/3/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(tidytext)
+library(dplyr)
+library(janitor)
+library(leaflet)
+library(ggmap)
+```
+
+```{r, echo=FALSE, warning= FALSE, error= FALSE, message= FALSE}
+zipcode <- read_csv("2010_Census_Populations_by_Zip_Code.csv")
+```
+
+```{r, echo=FALSE, warning= FALSE, error= FALSE, message= FALSE}
+zipcode_clean <- zipcode %>% 
+  clean_names() %>% 
+  filter(total_population > 0)
+```
+
+```{r, echo=FALSE, warning= FALSE, error= FALSE, message= FALSE}
+summary(zipcode_clean)
+```
+
+```{r}
+leaflet(options = 
+            leafletOptions(dragging = FALSE,
+                           minZoom = 6, 
+                           maxZoom = 12))  %>% 
+     addProviderTiles("CartoDB")  %>% 
+     setView(lng = -118.2437, lat = 34.0522, zoom = 9)
+
+```
+
