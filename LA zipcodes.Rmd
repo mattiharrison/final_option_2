@@ -8,6 +8,7 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
+library(fs)
 library(tidytext)
 library(janitor)
 library(leaflet)
@@ -20,20 +21,48 @@ library(ggthemes)
 
 ##Reading in Data from Data.gov and Zillow
 ```{r, echo=FALSE, warning= FALSE, error= FALSE, message= FALSE}
+##LA census data
 la <- read_csv("2010_Census_Populations_by_Zip_Code.csv") %>% 
   clean_names() %>% 
-  filter(total_population > 0)
+  filter(total_population > 0) 
+  
+names(la)[names(la)=="zip_code"] <- "zipcode"
 
+##LA Zillow data 
 zipcodes_la <- read_csv("Zip_Zhvi_SingleFamilyResidence.csv") %>% 
-  select(RegionName, State, CountyName, "2010-12") %>% 
+  select(RegionName, "2010-12") %>% 
   filter(RegionName >= 90001,
-         RegionName <= 93591)
+         RegionName <= 93591) %>% 
+  mutate_at(c(1), as.numeric)
 
+names(zipcodes_la)[names(zipcodes_la)=="RegionName"] <- "zipcode"
+
+##CT census data
 connecticut <- read_csv("2010_Census_Population_And_Housing_Units_By_Town.csv")
 
+names(connecticut)[names(connecticut)=="Municipality"] <- "City"
+
+##CT Zillow data 
 city_ct <- read_csv("City_Zhvi_SingleFamilyResidence.csv") %>% 
   select(RegionID, RegionName, State, CountyName, "2010-12") %>% 
   filter(State == "CT")
+
+names(city_ct)[names(city_ct)=="RegionName"] <- "City"
+```
+
+##Bringing Data together
+```{r}
+losangeles <- left_join(la, zipcodes_la, by = "zipcode", copy = FALSE) %>% 
+  drop_na("2010-12") %>% 
+  mutate(state = "CA")
+
+ct <- left_join(connecticut, city_ct, by = "City", copy = FALSE) %>% 
+  drop_na("2010-12") %>% 
+  mutate(state = "CT")
+
+all <- full_join(losangeles, ct, by = "state")
+
+write_rds(all, path = "finalproject/la_ct.rds")
 ```
 
 ```{r, echo=FALSE, warning= FALSE, error= FALSE, message= FALSE}
